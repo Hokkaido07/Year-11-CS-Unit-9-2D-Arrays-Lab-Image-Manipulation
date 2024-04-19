@@ -1,5 +1,6 @@
 package code;
 
+import image.APImage;
 import image.Pixel;
 
 public class ImageManipulation {
@@ -8,7 +9,7 @@ public class ImageManipulation {
      *  Write a statement that will display the image in a window
      */
     public static void main(String[] args) {
-
+        new APImage("cyberpunk2077.jpg").draw();
 
     }
 
@@ -21,6 +22,22 @@ public class ImageManipulation {
      * Calculate the average of the red, green, and blue components of the pixel.
      * Set the red, green, and blue components to this average value. */
     public static void grayScale(String pathOfFile) {
+        APImage image = new APImage(pathOfFile);
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        APImage grayscale = new APImage(width, height);
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Pixel pixel = image.getPixel(x, y);
+                int average = getAverageColour(pixel);
+                Pixel grayscalePixel = new Pixel(average, average, average);
+                grayscale.setPixel(x, y, grayscalePixel);
+            }
+        }
+
+        grayscale.draw();
 
     }
 
@@ -30,7 +47,7 @@ public class ImageManipulation {
      * @return the average RGB value
      */
     private static int getAverageColour(Pixel pixel) {
-        return 0;
+        return (pixel.getBlue() + pixel.getRed() + pixel.getGreen())/3;
     }
 
     /** CHALLENGE TWO: Black and White
@@ -43,7 +60,30 @@ public class ImageManipulation {
      * If the average is less than 128, set the pixel to black
      * If the average is equal to or greater than 128, set the pixel to white */
     public static void blackAndWhite(String pathOfFile) {
+        APImage image = new APImage(pathOfFile);
+        int width = image.getWidth();
+        int height = image.getHeight();
 
+        APImage monotoneImage = new APImage(width, height);
+
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Pixel pixel = image.getPixel(x, y);
+                Pixel monotonePixel;
+                int average = getAverageColour(pixel);
+
+                if(average < 128){
+                    monotonePixel = new Pixel(0,0,0);
+                }
+                else{
+                    monotonePixel = new Pixel(255,255,255);
+                }
+
+                monotoneImage.setPixel(x, y, monotonePixel);
+            }
+        }
+
+        monotoneImage.draw();
     }
 
     /** CHALLENGE Three: Edge Detection
@@ -69,7 +109,37 @@ public class ImageManipulation {
      * edge detection to an image using a threshold of 35
      *  */
     public static void edgeDetection(String pathToFile, int threshold) {
+            APImage image = new APImage(pathToFile);
+            int width = image.getWidth();
+            int height = image.getHeight();
 
+            APImage outlinedImage = new APImage(width, height);
+
+            for(int x = 0; x < width; x++){
+                for(int y = 0; y < height; y++){
+                    Pixel pixel = image.getPixel(x, y);
+
+                    int currentAverage = getAverageColour(pixel);
+
+                    int leftAverage = currentAverage;
+                    if(x > 0){
+                        leftAverage = getAverageColour(image.getPixel(x-1,y));
+                    }
+
+                    int bottomAverage = currentAverage;
+                    if(y < height - 1){
+                        bottomAverage = getAverageColour(image.getPixel(x,y+1));
+                    }
+
+                    if(Math.abs(currentAverage - leftAverage) > threshold || Math.abs(currentAverage - bottomAverage) > threshold){
+                        outlinedImage.setPixel(x, y, new Pixel(0, 0, 0));
+                    } else {
+                        outlinedImage.setPixel(x, y, new Pixel(255, 255, 255));
+                    }
+                }
+            }
+
+            outlinedImage.draw();
     }
 
     /** CHALLENGE Four: Reflect Image
